@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bremerton Foodline -- Program Evaluation Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --navy: #004369;
+  --navy-light: #e6f0f5;
+  --teal: #1b7895;
+  --teal-light: #d6ebf2;
+  --red: #b13b3c;
+  --red-light: #f9e8e8;
+  --bg: #f2f6f8;
+  --card: #ffffff;
+  --text: #1a2e3b;
+  --muted: #5a7180;
+  --border: #d0dde4;
+  --green: #2d7a4f;
+  --green-light: #e4f4ec;
+  --amber: #a05c10;
+  --amber-light: #fef3e2;
+  --score-high: #2d7a4f;
+  --score-mid: #a05c10;
+  --score-low: #b13b3c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato','Calibri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* NAV */
+.topnav{background:var(--navy);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.topnav .brand{display:flex;flex-direction:column;line-height:1}
+.topnav .brand .org{font-family:'Raleway',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:.5px}
+.topnav .brand .tagline{font-size:10px;color:rgba(255,255,255,.6);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.topnav .nav-right{display:flex;gap:8px}
+.topnav .nav-right a{color:rgba(255,255,255,.75);font-size:13px;text-decoration:none;padding:6px 12px;border-radius:4px;transition:background .15s}
+.topnav .nav-right a:hover{background:rgba(255,255,255,.1);color:#fff}
+.topnav .nav-right a.active{background:rgba(255,255,255,.15);color:#fff}
+
+/* LAYOUT */
+.page{max-width:1100px;margin:0 auto;padding:28px 24px 60px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-header h1{font-family:'Raleway',sans-serif;font-size:22px;font-weight:600;color:var(--navy)}
+.page-header p{font-size:13px;color:var(--muted);margin-top:3px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filters label{font-size:12px;color:var(--muted);margin-right:2px}
+select{font-family:'Lato',sans-serif;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:#fff;cursor:pointer;outline:none}
+select:focus{border-color:var(--teal)}
+
+/* METRIC CARDS */
+.metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px}
+.metric{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:16px 18px}
+.metric .icon{font-size:20px;margin-bottom:8px;color:var(--teal)}
+.metric .val{font-family:'Raleway',sans-serif;font-size:30px;font-weight:700;line-height:1;color:var(--navy)}
+.metric .lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.metric .trend{font-size:11px;margin-top:4px;font-weight:600}
+.metric .trend.up{color:var(--green)}.metric .trend.down{color:var(--red)}.metric .trend.neu{color:var(--muted)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:20px 22px;margin-bottom:16px}
+.card h3{font-family:'Raleway',sans-serif;font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h3 .sub{font-size:11px;font-weight:400;color:var(--muted);margin-left:4px}
+
+/* BARS */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+.bar-row .name{width:150px;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;background:#edf2f5;border-radius:4px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.bar-row .num{width:40px;text-align:right;font-weight:700;font-size:12px;color:var(--text);flex-shrink:0}
+
+/* SECTION BARS */
+.sec-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sec-row .lbl{width:210px;font-size:12px;color:var(--muted);flex-shrink:0}
+.sec-row .track{flex:1;background:#edf2f5;border-radius:4px;height:12px;overflow:hidden}
+.sec-row .fill{height:100%;border-radius:4px;transition:width .6s}
+.sec-row .val{width:44px;text-align:right;font-size:12px;font-weight:700;color:var(--text);flex-shrink:0}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+table.dt th{text-align:left;padding:8px 10px;background:#f4f8fa;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border)}
+table.dt td{padding:10px 10px;border-bottom:1px solid #eef2f5;color:var(--text);vertical-align:top}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tr:hover td{background:#f8fbfc}
+
+/* CHIPS */
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.chip.green{background:var(--green-light);color:var(--green)}
+.chip.amber{background:var(--amber-light);color:var(--amber)}
+.chip.red{background:var(--red-light);color:var(--red)}
+.chip.navy{background:var(--navy-light);color:var(--navy)}
+.chip.teal{background:var(--teal-light);color:var(--teal)}
+
+/* SCORE PILL */
+.score-pill{display:inline-block;padding:3px 10px;border-radius:8px;font-weight:700;font-size:12px}
+
+/* QUALITATIVE */
+.quote-block{border-left:3px solid var(--teal);padding:10px 14px;background:var(--teal-light);border-radius:0 6px 6px 0;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.6}
+.quote-block .meta{font-size:11px;color:var(--muted);margin-top:6px}
+.quote-block .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;margin-right:4px;margin-top:4px}
+.quote-block .tag.strength{background:#e4f4ec;color:#2d7a4f}
+.quote-block .tag.concern{background:#f9e8e8;color:#b13b3c}
+.quote-block .tag.suggestion{background:#fef3e2;color:#a05c10}
+
+/* THEME BUBBLES */
+.theme-grid{display:flex;flex-wrap:wrap;gap:8px}
+.theme-bubble{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.theme-bubble:hover{transform:translateY(-1px)}
+
+/* TABS */
+.tab-row{display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.tab{padding:8px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* FOOTER */
+.footer{text-align:center;font-size:12px;color:var(--muted);margin-top:32px;padding-top:16px;border-top:1px solid var(--border)}
+.footer .heart{color:var(--red)}
+
+/* CHART */
+.chart-wrap{position:relative;width:100%}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">
+    <span class="org">Bremerton Foodline</span>
+    <span class="tagline">Food Security For All</span>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="active">Dashboard</a>
+    <a href="#" onclick="alert('Link your evaluation form here')">Evaluation Form</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <h1>Program Evaluation Dashboard</h1>
+      <p>Track scores, trends, and qualitative insights across all programs and review cycles.</p>
+    </div>
+    <div class="filters">
+      <label>Program</label>
+      <select id="prog-filter" onchange="renderAll()">
+        <option value="all">All programs</option>
+        <option>Food Pantry</option>
+        <option>Blossom</option>
+        <option>KidVantage</option>
+        <option>Groceries on the Go</option>
+        <option>SWAP</option>
+        <option>The Garden Program</option>
+        <option>Mailbox Program</option>
+      </select>
+      <label>Cycle</label>
+      <select id="cycle-filter" onchange="renderAll()">
+        <option value="all">All cycles</option>
+        <option>1-Year</option>
+        <option>3-Year</option>
+        <option>5-Year</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metric-row" id="metrics"></div>
+
+  <!-- ROW 1: Program scores + Cycle trend -->
+  <div class="grid-2">
+    <div class="card">
+      <h3>Average score by program <span class="sub">out of 95</span></h3>
+      <div id="prog-bars"></div>
+    </div>
+    <div class="card">
+      <h3>Score trend by review cycle</h3>
+      <div id="cycle-trend"></div>
+      <div style="margin-top:20px;">
+        <h3 style="margin-bottom:12px;">Score distribution</h3>
+        <div class="chart-wrap" style="height:160px">
+          <canvas id="distChart" role="img" aria-label="Bar chart showing how many programs fall in each score tier">Score distribution across evaluations.</canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION BREAKDOWN -->
+  <div class="card">
+    <h3>Average scores by section -- all submissions</h3>
+    <div id="section-bars"></div>
+  </div>
+
+  <!-- TABS: Quantitative + Qualitative -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchTab('submissions')">All submissions</div>
+      <div class="tab" onclick="switchTab('qualitative')">Qualitative insights</div>
+      <div class="tab" onclick="switchTab('themes')">Key themes</div>
+    </div>
+
+    <!-- SUBMISSIONS TABLE -->
+    <div class="tab-panel active" id="tab-submissions">
+      <div class="table-wrap" id="submissions-table"></div>
+    </div>
+
+    <!-- QUALITATIVE -->
+    <div class="tab-panel" id="tab-qualitative">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+        <span style="font-size:12px;color:var(--muted)">Filter by type:</span>
+        <button onclick="filterQuotes('all')" id="qf-all" style="padding:4px 12px;border-radius:12px;border:1.5px solid var(--navy);background:var(--navy);color:#fff;font-size:12px;font-weight:600;cursor:pointer">All</button>
+        <button onclick="filterQuotes('strength')" id="qf-strength" style="padding:4px 12px;border-radius:12px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:12px;font-weight:600;cursor:pointer">Strengths</button>
+        <button onclick="filterQuotes('concern')" id="qf-concern" style="padding:4px 12px;border-radius:12px;border:1.5px solid var(--red);background:#fff;color:var(--red);font-size:12px;font-weight:600;cursor:pointer">Concerns</button>
+        <button onclick="filterQuotes('suggestion')" id="qf-suggestion" style="padding:4px 12px;border-radius:12px;border:1.5px solid var(--amber);background:#fff;color:var(--amber);font-size:12px;font-weight:600;cursor:pointer">Suggestions</button>
+      </div>
+      <div id="quotes-list"></div>
+    </div>
+
+    <!-- THEMES -->
+    <div class="tab-panel" id="tab-themes">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Recurring themes mentioned across reviewer comments. Size reflects frequency.</p>
+      <div class="grid-2" style="margin-bottom:0">
+        <div>
+          <p style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:10px;">Strengths mentioned most</p>
+          <div class="theme-grid" id="strength-themes"></div>
+        </div>
+        <div>
+          <p style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:10px;">Concerns mentioned most</p>
+          <div class="theme-grid" id="concern-themes"></div>
+        </div>
+      </div>
+      <div style="margin-top:20px">
+        <p style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:10px;">Most common suggestions</p>
+        <div class="theme-grid" id="suggestion-themes"></div>
+      </div>
+      <div style="margin-top:24px">
+        <h3 style="font-family:'Raleway',sans-serif;font-size:14px;font-weight:600;color:var(--navy);margin-bottom:12px">Recommendation breakdown</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="recChart" role="img" aria-label="Pie chart showing breakdown of board recommendations">Recommendation breakdown chart.</canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Bremerton Foodline &nbsp;·&nbsp; Program Evaluation Dashboard &nbsp;·&nbsp; <span class="heart">Food Security For All</span>
+  </div>
+
+</div>
+
+<script>
+const BRAND = {
+  navy: '#004369', teal: '#1b7895', red: '#b13b3c',
+  green: '#2d7a4f', amber: '#a05c10',
+  navyLight: '#e6f0f5', tealLight: '#d6ebf2', redLight: '#f9e8e8',
+  greenLight: '#e4f4ec', amberLight: '#fef3e2'
+};
+
+const DATA = [];
+
+const QUOTES_EXTRA = [];
+
+const THEMES = {
+  strength: [
+    {label:'Community trust',count:8},{label:'Volunteer retention',count:6},{label:'Equity & access',count:7},
+    {label:'Documented policies',count:5},{label:'Strong partnerships',count:6},{label:'Clear messaging',count:4},
+    {label:'Low overhead',count:3},{label:'Measurable impact',count:7}
+  ],
+  concern: [
+    {label:'Budget clarity',count:6},{label:'Volunteer dependency',count:7},{label:'Compliance gaps',count:4},
+    {label:'Delivery logistics',count:5},{label:'Succession planning',count:6},{label:'Staff capacity',count:5}
+  ],
+  suggestion: [
+    {label:'Second distribution site',count:4},{label:'Dedicated grant funding',count:5},{label:'Messaging refresh',count:3},
+    {label:'MOU with partners',count:4},{label:'Pilot program first',count:3},{label:'Legal review',count:3}
+  ]
+};
+
+let activeQuoteFilter = 'all';
+let distChartInst = null;
+let recChartInst = null;
+
+function filtered() {
+  const p = document.getElementById('prog-filter').value;
+  const c = document.getElementById('cycle-filter').value;
+  return DATA.filter(r => (p === 'all' || r.program === p) && (c === 'all' || r.cycle === c));
+}
+
+function scoreColor(s, max) {
+  const pct = s / max;
+  if (pct >= 0.84) return { bg: BRAND.greenLight, txt: BRAND.green, bar: BRAND.green };
+  if (pct >= 0.68) return { bg: BRAND.amberLight, txt: BRAND.amber, bar: BRAND.amber };
+  return { bg: BRAND.redLight, txt: BRAND.red, bar: BRAND.red };
+}
+
+function avg(arr) { return arr.length ? Math.round(arr.reduce((a,b) => a+b, 0) / arr.length) : 0; }
+
+function renderAll() {
+  const data = filtered();
+  renderMetrics(data);
+  renderProgBars(data);
+  renderCycleTrend(data);
+  renderSectionBars(data);
+  renderTable(data);
+  renderDistChart(data);
+  renderQuotes();
+  renderThemes();
+  renderRecChart();
+}
+
+function renderMetrics(data) {
+  if (!data.length) { document.getElementById('metrics').innerHTML = '<p style="color:#5a7180;font-size:13px;padding:8px 0">No submissions match the selected filters.</p>'; return; }
+  const totals = data.map(d => d.total);
+  const a = avg(totals);
+  const high = data.filter(d => d.total >= 80).length;
+  const concern = data.filter(d => d.total < 50).length;
+  const progs = [...new Set(data.map(d => d.program))].length;
+  const c = scoreColor(a, 95);
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="icon">📋</div><div class="val">${data.length}</div><div class="lbl">Total submissions</div></div>
+    <div class="metric"><div class="icon">📊</div><div class="val" style="color:${c.txt}">${a}<span style="font-size:16px;color:#5a7180">/95</span></div><div class="lbl">Average score</div></div>
+    <div class="metric"><div class="icon">✅</div><div class="val" style="color:${BRAND.green}">${high}</div><div class="lbl">Strong programs</div><div class="trend up">Score ≥ 80</div></div>
+    <div class="metric"><div class="icon">⚠️</div><div class="val" style="color:${BRAND.red}">${concern}</div><div class="lbl">Need attention</div><div class="trend down">Score &lt; 50</div></div>
+    <div class="metric"><div class="icon">🌱</div><div class="val">${progs}</div><div class="lbl">Programs reviewed</div></div>
+  `;
+}
+
+function renderProgBars(data) {
+  const map = {};
+  data.forEach(d => { if (!map[d.program]) map[d.program] = []; map[d.program].push(d.total); });
+  const rows = Object.entries(map).map(([k,v]) => ({ name: k, avg: avg(v) })).sort((a,b) => b.avg - a.avg);
+  document.getElementById('prog-bars').innerHTML = rows.map(r => {
+    const c = scoreColor(r.avg, 95);
+    const pct = Math.round((r.avg / 95) * 100);
+    return `<div class="bar-row"><div class="name" title="${r.name}">${r.name}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${c.bar}"></div></div><div class="num" style="color:${c.txt}">${r.avg}</div></div>`;
+  }).join('') || '<p style="color:#5a7180;font-size:13px">No data.</p>';
+}
+
+function renderCycleTrend(data) {
+  const cycles = ['1-Year','3-Year','5-Year'];
+  const rows = cycles.map(c => {
+    const sub = data.filter(d => d.cycle === c);
+    return { cycle: c, avg: sub.length ? avg(sub.map(d => d.total)) : null, n: sub.length };
+  }).filter(r => r.avg !== null);
+  document.getElementById('cycle-trend').innerHTML = rows.length ? rows.map(r => {
+    const c = scoreColor(r.avg, 95);
+    const pct = Math.round((r.avg / 95) * 100);
+    return `<div class="bar-row"><div class="name">${r.cycle}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${c.bar}"></div></div><div class="num" style="color:${c.txt}">${r.avg}</div></div>`;
+  }).join('') : '<p style="color:#5a7180;font-size:13px">No data.</p>';
+}
+
+function renderSectionBars(data) {
+  if (!data.length) { document.getElementById('section-bars').innerHTML = ''; return; }
+  const sections = [
+    {key:'s1',label:'Mission & strategic alignment',max:15},
+    {key:'s2',label:'Community need & impact',max:15},
+    {key:'s3',label:'Financial sustainability',max:15},
+    {key:'s4',label:'Operational capacity',max:20},
+    {key:'s5',label:'Compliance & liability',max:15},
+    {key:'s6',label:'Marketing & communication',max:15},
+  ];
+  document.getElementById('section-bars').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">
+    ${sections.map(s => {
+      const a = avg(data.map(d => d[s.key]));
+      const c = scoreColor(a, s.max);
+      const pct = Math.round((a / s.max) * 100);
+      return `<div class="sec-row"><div class="lbl">${s.label}</div><div class="track"><div class="fill" style="width:${pct}%;background:${c.bar}"></div></div><div class="val" style="color:${c.txt}">${a}/${s.max}</div></div>`;
+    }).join('')}
+    </div>`;
+}
+
+function renderTable(data) {
+  const rows = [...data].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const recChip = r => {
+    if (r==='Expand'||r==='Approve') return `<span class="chip green">${r}</span>`;
+    if (r==='Pause Pending Review'||r==='Wind Down') return `<span class="chip red">${r}</span>`;
+    return `<span class="chip amber">${r}</span>`;
+  };
+  document.getElementById('submissions-table').innerHTML = `
+    <table class="dt">
+      <colgroup><col style="width:130px"><col style="width:70px"><col style="width:90px"><col style="width:110px"><col style="width:60px"><col style="width:150px"><col style="width:70px"><col></colgroup>
+      <thead><tr><th>Program</th><th>Cycle</th><th>Reviewer</th><th>Role</th><th>Score</th><th>Recommendation</th><th>Date</th><th>Comments</th></tr></thead>
+      <tbody>${rows.map(r => {
+        const c = scoreColor(r.total, 95);
+        const typeTag = r.type === 'strength' ? `<span class="chip green" style="font-size:10px">Strength</span>` : r.type === 'concern' ? `<span class="chip red" style="font-size:10px">Concern</span>` : `<span class="chip amber" style="font-size:10px">Suggestion</span>`;
+        return `<tr>
+          <td style="font-weight:700">${r.program}</td>
+          <td><span class="chip navy">${r.cycle}</span></td>
+          <td>${r.reviewer}</td>
+          <td style="color:#5a7180;font-size:11px">${r.role}</td>
+          <td><span class="score-pill" style="background:${c.bg};color:${c.txt}">${r.total}/95</span></td>
+          <td>${recChip(r.rec)}</td>
+          <td style="color:#5a7180">${r.date}</td>
+          <td style="font-size:11px;color:#5a7180;line-height:1.5">${r.comments.substring(0,80)}... ${typeTag}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+}
+
+function renderDistChart(data) {
+  const counts = [
+    data.filter(d => d.total < 50).length,
+    data.filter(d => d.total >= 50 && d.total < 65).length,
+    data.filter(d => d.total >= 65 && d.total < 80).length,
+    data.filter(d => d.total >= 80).length,
+  ];
+  if (distChartInst) distChartInst.destroy();
+  distChartInst = new Chart(document.getElementById('distChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Below 50','50-64','65-79','80-95'],
+      datasets: [{ data: counts, backgroundColor: [BRAND.red, BRAND.amber, '#c08030', BRAND.green], borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.raw} submission${c.raw !== 1 ? 's' : ''}` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5a7180', font: { size: 11 } } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#5a7180', font: { size: 11 } }, grid: { color: 'rgba(0,67,105,.06)' } }
+      }
+    }
+  });
+}
+
+function renderQuotes() {
+  const allQuotes = [
+    ...DATA.map(d => ({ program: d.program, reviewer: d.reviewer, role: d.role, date: d.date, cycle: d.cycle, type: d.type, text: d.comments })),
+    ...QUOTES_EXTRA
+  ];
+  const filtered = activeQuoteFilter === 'all' ? allQuotes : allQuotes.filter(q => q.type === activeQuoteFilter);
+  document.getElementById('quotes-list').innerHTML = filtered.map(q => {
+    const tagLabel = q.type === 'strength' ? 'Strength' : q.type === 'concern' ? 'Concern' : 'Suggestion';
+    return `<div class="quote-block">
+      <div>"${q.text}"</div>
+      <div class="meta">
+        <span class="tag ${q.type}">${tagLabel}</span>
+        <strong>${q.program}</strong> · ${q.reviewer}, ${q.role} · ${q.cycle} · ${q.date}
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:#5a7180;font-size:13px">No comments match this filter.</p>';
+}
+
+function filterQuotes(type) {
+  activeQuoteFilter = type;
+  ['all','strength','concern','suggestion'].forEach(t => {
+    const btn = document.getElementById('qf-' + t);
+    if (t === type) {
+      btn.style.background = t === 'all' ? BRAND.navy : t === 'strength' ? BRAND.green : t === 'concern' ? BRAND.red : BRAND.amber;
+      btn.style.color = '#fff';
+      btn.style.borderColor = t === 'all' ? BRAND.navy : t === 'strength' ? BRAND.green : t === 'concern' ? BRAND.red : BRAND.amber;
+    } else {
+      btn.style.background = '#fff';
+      btn.style.color = t === 'all' ? BRAND.navy : t === 'strength' ? BRAND.green : t === 'concern' ? BRAND.red : BRAND.amber;
+      btn.style.borderColor = t === 'all' ? BRAND.navy : t === 'strength' ? BRAND.green : t === 'concern' ? BRAND.red : BRAND.amber;
+    }
+  });
+  renderQuotes();
+}
+
+function renderThemes() {
+  const colorMap = { strength: { bg: BRAND.greenLight, txt: BRAND.green, border: BRAND.green }, concern: { bg: BRAND.redLight, txt: BRAND.red, border: BRAND.red }, suggestion: { bg: BRAND.amberLight, txt: BRAND.amber, border: BRAND.amber } };
+  ['strength','concern','suggestion'].forEach(type => {
+    const c = colorMap[type];
+    document.getElementById(type + '-themes').innerHTML = THEMES[type]
+      .sort((a,b) => b.count - a.count)
+      .map(t => {
+        const size = t.count >= 7 ? 14 : t.count >= 5 ? 13 : 12;
+        const pad = t.count >= 7 ? '7px 16px' : '5px 12px';
+        return `<div class="theme-bubble" style="background:${c.bg};color:${c.txt};border-color:${c.border};font-size:${size}px;padding:${pad}">${t.label} <strong>(${t.count})</strong></div>`;
+      }).join('');
+  });
+}
+
+function renderRecChart() {
+  const recMap = {};
+  DATA.forEach(d => { recMap[d.rec] = (recMap[d.rec] || 0) + 1; });
+  const labels = Object.keys(recMap);
+  const values = Object.values(recMap);
+  const colors = labels.map(l => {
+    if (l === 'Approve' || l === 'Expand') return BRAND.green;
+    if (l === 'Pause Pending Review' || l === 'Wind Down') return BRAND.red;
+    if (l === 'Maintain') return BRAND.teal;
+    return BRAND.amber;
+  });
+  if (recChartInst) recChartInst.destroy();
+  recChartInst = new Chart(document.getElementById('recChart'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw} submission${c.raw !== 1 ? 's' : ''}` } }
+      }
+    }
+  });
+  const legendHtml = labels.map((l,i) => `<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#5a7180;margin-right:12px"><span style="width:10px;height:10px;border-radius:2px;background:${colors[i]};display:inline-block"></span>${l} (${values[i]})</span>`).join('');
+  const legendDiv = document.createElement('div');
+  legendDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-top:10px';
+  legendDiv.innerHTML = legendHtml;
+  document.getElementById('recChart').parentNode.after(legendDiv);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['submissions','qualitative','themes'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+renderAll();
+</script>
+</body>
+</html>

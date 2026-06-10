@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bremerton Foodline — Program Evaluation</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #004369;
+    --purple-light: #e6f0f5;
+    --purple-dark: #003050;
+    --google-red: #d93025;
+    --bg: #f0f4f7;
+    --card-bg: #ffffff;
+    --text-primary: #202124;
+    --text-secondary: #5f6368;
+    --border: #dadce0;
+    --input-border: #80868b;
+    --score-good: #188038;
+    --score-warn: #e37400;
+    --score-bad: #d93025;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Roboto','Google Sans',sans-serif; background: var(--bg); color: var(--text-primary); padding: 20px 16px 60px; min-height: 100vh; }
+  .form-container { max-width: 680px; margin: 0 auto; }
+
+  /* Cards */
+  .header-card { background: var(--card-bg); border-radius: 8px; border-top: 10px solid #004369; padding: 24px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.08); }
+  .header-card h1 { font-family:'Raleway',sans-serif; font-size:26px; font-weight:400; margin-bottom:8px; }
+  .header-card .subtitle { font-size:13.5px; color:var(--text-secondary); line-height:1.5; }
+  .required-note { font-size:13px; color:var(--text-secondary); margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .required-note span { color:var(--google-red); }
+  .card { background:var(--card-bg); border-radius:8px; padding:24px; margin-bottom:12px; box-shadow:0 1px 2px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.08); transition:box-shadow .15s; }
+  .card:focus-within { box-shadow:0 1px 2px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.15); }
+  .section-card { background:var(--card-bg); border-radius:8px; border-left:6px solid var(--purple); padding:20px 24px; margin-bottom:12px; margin-top:20px; box-shadow:0 1px 2px rgba(0,0,0,.1); }
+  .section-card h2 { font-family:'Raleway',sans-serif; font-size:19px; font-weight:500; color:var(--purple); margin-bottom:4px; }
+  .rubric-card { background:var(--card-bg); border-radius:8px; padding:20px 24px 16px; margin-bottom:12px; box-shadow:0 1px 2px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.08); }
+
+  /* Year selector */
+  .year-selector { display:flex; gap:10px; margin:16px 0 4px; flex-wrap:wrap; }
+  .year-btn { flex:1; min-width:120px; padding:12px 8px; border:2px solid var(--border); border-radius:8px; background:#fff; font-family:'Raleway',sans-serif; font-size:15px; font-weight:500; color:var(--text-secondary); cursor:pointer; transition:all .2s; text-align:center; }
+  .year-btn:hover { border-color:var(--purple); color:var(--purple); }
+  .year-btn.active { border-color:var(--purple); background:var(--purple-light); color:var(--purple); }
+  .year-badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; margin-top:4px; }
+  .y1 .year-badge { background:#e6f0f5; color:#004369; }
+  .y3 .year-badge { background:#d6ebf2; color:#1b7895; }
+  .y5 .year-badge { background:#f9e8e8; color:#b13b3c; }
+
+  /* Section score badge */
+  .section-score-badge { display:flex; align-items:center; gap:10px; margin-top:12px; padding:10px 14px; background:var(--purple-light); border-radius:6px; font-size:13.5px; }
+  .section-score-badge .label { color:var(--text-secondary); }
+  .section-score-badge .score-val { font-family:'Raleway',sans-serif; font-weight:700; font-size:20px; color:var(--purple); min-width:28px; }
+  .section-score-badge .max { color:var(--text-secondary); font-size:12px; }
+  .score-bar-wrap { flex:1; background:#cde3ec; border-radius:4px; height:6px; overflow:hidden; }
+  .score-bar { height:100%; background:var(--purple); border-radius:4px; width:0%; transition:width .4s ease,background .4s ease; }
+
+  /* Questions */
+  .question-label { font-size:15px; color:var(--text-primary); margin-bottom:14px; line-height:1.5; }
+  .question-label .req { color:var(--google-red); margin-left:4px; }
+  .question-context { font-size:12px; color:var(--text-secondary); font-style:italic; margin-bottom:12px; margin-top:-8px; }
+
+  /* Radio */
+  .options-group { display:flex; flex-direction:column; gap:10px; }
+  .option-label { display:flex; align-items:center; gap:12px; cursor:pointer; padding:4px 0; font-size:14px; color:var(--text-primary); user-select:none; }
+  .option-label input[type="radio"] { appearance:none; -webkit-appearance:none; width:18px; height:18px; border:2px solid var(--input-border); border-radius:50%; flex-shrink:0; cursor:pointer; transition:border-color .15s; }
+  .option-label input[type="radio"]:checked { border-color:var(--purple); border-width:5px; }
+  .option-label:hover input[type="radio"] { border-color:var(--purple); }
+
+  /* Assessment options */
+  .assessment-options { display:flex; flex-direction:column; gap:12px; }
+  .assessment-opt { display:flex; align-items:center; gap:12px; padding:12px 16px; border:1px solid var(--border); border-radius:6px; cursor:pointer; transition:border-color .15s,background .15s; font-size:14px; }
+  .assessment-opt:hover { border-color:var(--purple); background:var(--purple-light); }
+  .assessment-opt input[type="radio"] { appearance:none; -webkit-appearance:none; width:18px; height:18px; border:2px solid var(--input-border); border-radius:50%; flex-shrink:0; cursor:pointer; transition:border-color .15s; }
+  .assessment-opt input[type="radio"]:checked { border-color:var(--purple); border-width:5px; }
+  .assessment-opt:has(input:checked) { border-color:var(--purple); background:var(--purple-light); }
+
+  /* Text inputs */
+  .text-input-wrap { position:relative; margin-top:4px; }
+  .text-input-wrap input, .text-input-wrap textarea { width:100%; border:none; border-bottom:1px solid var(--input-border); outline:none; padding:8px 0 6px; font-size:14px; font-family:'Lato',sans-serif; color:var(--text-primary); background:transparent; resize:none; transition:border-color .2s; }
+  .text-input-wrap input:focus, .text-input-wrap textarea:focus { border-bottom:2px solid var(--purple); }
+
+  /* Rubric table */
+  .rubric-intro { font-size:13px; color:var(--text-secondary); margin-bottom:14px; line-height:1.5; }
+  .scale-legend { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .scale-legend .chip { background:var(--purple-light); color:var(--purple); border-radius:12px; padding:4px 10px; font-size:12px; font-weight:500; }
+  .rubric-table-wrap { overflow-x:auto; }
+  table.rubric-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.rubric-table th { text-align:left; padding:8px 10px; background:var(--purple-light); color:var(--purple); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.4px; border-bottom:2px solid #a8cdd9; }
+  table.rubric-table td { padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  table.rubric-table tr:last-child td { border-bottom:none; }
+  .score-select { appearance:none; -webkit-appearance:none; border:1px solid var(--border); border-radius:4px; padding:6px 28px 6px 10px; font-size:14px; font-family:'Lato',sans-serif; color:var(--text-primary); background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23004369' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center; cursor:pointer; min-width:72px; transition:border-color .15s; }
+  .score-select:focus { outline:none; border-color:var(--purple); box-shadow:0 0 0 2px rgba(103,58,183,.15); }
+  .notes-input { border:none; border-bottom:1px solid var(--border); outline:none; width:100%; font-size:13px; font-family:'Lato',sans-serif; color:var(--text-primary); padding:4px 0; background:transparent; transition:border-color .2s; }
+  .notes-input:focus { border-bottom:2px solid var(--purple); }
+  .subtotal-row td { background:var(--purple-light) !important; font-weight:600; color:var(--purple); border-top:2px solid #a8cdd9 !important; border-bottom:none !important; padding:10px !important; }
+
+  /* Total card */
+  .total-card { background:var(--card-bg); border-radius:8px; padding:24px; margin-bottom:12px; margin-top:20px; box-shadow:0 1px 2px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.08); border-top:4px solid #1b7895; }
+  .total-card h3 { font-family:'Raleway',sans-serif; font-size:18px; font-weight:500; margin-bottom:16px; }
+  .grand-total-display { display:flex; align-items:center; gap:20px; padding:16px 20px; background:var(--purple-light); border-radius:8px; margin-bottom:20px; }
+  .grand-total-number { font-family:'Raleway',sans-serif; font-size:48px; font-weight:700; color:var(--purple); line-height:1; min-width:80px; }
+  .grand-total-info { flex:1; }
+  .grand-total-max { font-size:13px; color:var(--text-secondary); margin-bottom:6px; }
+  .grand-total-bar-wrap { background:#cde3ec; border-radius:4px; height:8px; overflow:hidden; }
+  .grand-total-bar { height:100%; background:var(--purple); border-radius:4px; width:0%; transition:width .5s ease,background .5s ease; }
+  .interpretation { padding:12px 16px; border-radius:6px; font-size:14px; font-weight:500; margin-top:12px; min-height:44px; transition:all .3s; color:var(--text-secondary); background:#f8f9fa; }
+  .interpretation.green { background:#e6f4ea; color:var(--score-good); }
+  .interpretation.yellow { background:#fef7e0; color:var(--score-warn); }
+  .interpretation.red { background:#fce8e6; color:var(--score-bad); }
+
+  /* Submit */
+  .submit-row { display:flex; justify-content:space-between; align-items:center; }
+  .btn-submit { background:var(--purple); color:#fff; border:none; border-radius:4px; padding:10px 24px; font-family:'Raleway',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:background .15s,box-shadow .15s; }
+  .btn-submit:hover { background:var(--purple-dark); box-shadow:0 1px 3px rgba(0,0,0,.25); }
+  .btn-submit:disabled { background:#ccc; cursor:not-allowed; }
+  .btn-clear { background:none; color:var(--purple); border:none; font-family:'Lato',sans-serif; font-size:14px; cursor:pointer; padding:10px 4px; transition:color .15s; }
+  .btn-clear:hover { color:var(--purple-dark); text-decoration:underline; }
+
+  /* Success screen */
+  .success-screen { display:none; text-align:center; padding:48px 24px; }
+  .success-screen .checkmark { font-size:56px; margin-bottom:16px; }
+  .success-screen h2 { font-family:'Raleway',sans-serif; font-size:24px; font-weight:400; margin-bottom:8px; color:var(--text-primary); }
+  .success-screen p { font-size:14px; color:var(--text-secondary); margin-bottom:24px; }
+  .btn-new { background:var(--purple); color:#fff; border:none; border-radius:4px; padding:10px 24px; font-family:'Raleway',sans-serif; font-size:14px; font-weight:500; cursor:pointer; }
+
+  /* Admin email bar */
+  .admin-bar { background:#e6f4f8; border:1px solid #a8cdd9; border-radius:6px; padding:10px 16px; margin-bottom:12px; font-size:12.5px; color:#004369; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .admin-bar strong { color:#b13b3c; }
+  .admin-bar input { border:none; border-bottom:1px solid #b13b3c; outline:none; font-size:13px; color:#333; background:transparent; padding:2px 4px; min-width:220px; font-family:'Lato',sans-serif; }
+
+  /* Hidden utility */
+  .hidden { display:none !important; }
+
+  .form-footer { text-align:center; font-size:12px; color:var(--text-secondary); margin-top:24px; }
+
+  /* Submitting spinner */
+  .spinner { display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="form-container" id="main-form">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div style="font-family:'Raleway',sans-serif;font-size:12px;font-weight:600;color:#b13b3c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Bremerton Foodline</div><h1>Program Evaluation Questionnaire</h1>
+    <p class="subtitle">This questionnaire is designed to help the Board of Directors evaluate existing programs and proposed new programs to ensure alignment with mission, strategy, capacity, compliance, and community impact. Board members may use this form individually or as a group discussion tool.</p>
+    <div class="required-note"><span>*</span> Indicates required question</div>
+  </div>
+
+  <!-- ADMIN EMAIL BAR -->
+  <div class="admin-bar">
+    <strong>📬 Submissions sent to:</strong>
+    <input type="text" id="admin-email" value="cori@bremertonfoodline.org" placeholder="admin@yourorg.org">
+    <span style="color:#888;">(update as needed)</span>
+  </div>
+
+  <!-- PROGRAM INFO -->
+  <div class="card">
+    <div class="question-label" style="font-size:16px;font-family:'Raleway',sans-serif;font-weight:500;margin-bottom:20px;">Program Information</div>
+
+    <div class="question-label">Evaluation Cycle <span class="req">*</span></div>
+    <p class="question-context">Select the evaluation horizon for this review.</p>
+    <div class="year-selector">
+      <button type="button" class="year-btn y1" onclick="setYear(1)">
+        1-Year Review<br><span class="year-badge">Viability</span>
+      </button>
+      <button type="button" class="year-btn y3" onclick="setYear(3)">
+        3-Year Review<br><span class="year-badge">Trajectory</span>
+      </button>
+      <button type="button" class="year-btn y5" onclick="setYear(5)">
+        5-Year Review<br><span class="year-badge">Legacy</span>
+      </button>
+    </div>
+    <input type="hidden" id="eval-cycle" value="">
+
+    <div style="margin-top:20px;" class="question-label">Program Name <span class="req">*</span></div>
+    <div class="options-group" style="margin-bottom:20px;">
+      <label class="option-label"><input type="radio" name="program_name"><span>Food Pantry</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>Blossom</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>KidVantage</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>Groceries on the Go</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>Mailbox Program</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>Cake4Kids</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>theFOODproject</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>SWAP - Social Worker Assistance Program</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>Peninsula Community Health Services (medical / dental vans)</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>The Commodity Supplemental Food Program (CSFP)</span></label>
+      <label class="option-label"><input type="radio" name="program_name"><span>The Garden Program</span></label>
+      <label class="option-label" style="display:flex;align-items:center;gap:8px;"><input type="radio" name="program_name" id="program_other_radio"><span>Other:</span><input type="text" id="program_other_text" placeholder="Please specify" style="border:none;border-bottom:1px solid #80868b;outline:none;font-size:14px;padding:2px 4px;flex:1;" onclick="document.getElementById('program_other_radio').checked=true"></label>
+    </div>
+
+    <div class="question-label">Type of Program <span class="req">*</span></div>
+    <div class="options-group" style="margin-bottom:20px;">
+      <label class="option-label"><input type="radio" name="program_type"><span>Existing</span></label>
+      <label class="option-label"><input type="radio" name="program_type"><span>Proposed / New</span></label>
+    </div>
+
+    <div class="question-label">Date Reviewed <span class="req">*</span></div>
+    <div class="text-input-wrap">
+      <input type="date" id="date-reviewed">
+    </div>
+  </div>
+
+  <!-- ===================== DYNAMIC SECTIONS ===================== -->
+  <!-- Each section has three question blocks: y1, y3, y5 -->
+
+  <!-- ===== SECTION 1: Mission & Strategic ===== -->
+  <div class="section-card">
+    <h2>Mission &amp; Strategic Alignment</h2>
+    <div class="section-score-badge">
+      <span class="label">Section Score:</span>
+      <span class="score-val" id="sec1-score">—</span>
+      <span class="max">/ 15</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="sec1-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- Q1 y1 -->
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program clearly align with the organization's mission and vision? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q1"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q1"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q1"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <!-- Q1 y3 -->
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program consistently demonstrated mission alignment over time? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q1"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q1"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q1"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <!-- Q1 y5 -->
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Is this program now a defining part of the organization's mission and identity? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q1"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q1"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q1"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <!-- Q2 y1 -->
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program support the current strategic plan or identified organizational priorities? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q2"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q2"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q2"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <!-- Q2 y3 -->
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program adapted to evolving strategic priorities over the past three years? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q2"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q2"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q2"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <!-- Q2 y5 -->
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Does the program anchor the long-term strategic direction of the organization? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q2"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q2"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q2"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <!-- Q3 y1 -->
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program duplicate or conflict with services already provided by the organization or community partners? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q3"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q3"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q3"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <!-- Q3 y3 -->
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program differentiated itself from similar community offerings? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q3"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q3"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q3"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <!-- Q3 y5 -->
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Has the program established itself as the leading or unique provider of this service in the community? <span class="req">*</span></div>
+    <div class="options-group">
+      <label class="option-label"><input type="radio" name="s1q3"><span>Yes</span></label>
+      <label class="option-label"><input type="radio" name="s1q3"><span>Somewhat</span></label>
+      <label class="option-label"><input type="radio" name="s1q3"><span>No</span></label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <!-- Rubric Section 1 -->
+  <div class="rubric-card q-block all-years hidden">
+    <div class="question-label" style="font-weight:500;">Mission &amp; Strategic Alignment — Scoring Rubric</div>
+    <div class="rubric-intro">Score each criterion 1–5 (or N/A). Subtotal updates automatically.</div>
+    <div class="scale-legend"><span class="chip">5=Excellent</span><span class="chip">4=Good</span><span class="chip">3=Adequate</span><span class="chip">2=Weak</span><span class="chip">1=Poor</span><span class="chip">N/A</span></div>
+    <div class="rubric-table-wrap">
+    <table class="rubric-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td id="s1r1-label">Alignment with mission and vision</td><td><select class="score-select" data-section="1" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td id="s1r2-label">Alignment with strategic plan/priorities</td><td><select class="score-select" data-section="1" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td id="s1r3-label">Avoids duplication / conflict</td><td><select class="score-select" data-section="1" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr class="subtotal-row"><td>Subtotal (Max 15)</td><td id="sub1" colspan="2">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: Community Need ===== -->
+  <div class="section-card q-block all-years hidden">
+    <h2>Community Need &amp; Impact</h2>
+    <div class="section-score-badge">
+      <span class="label">Section Score:</span>
+      <span class="score-val" id="sec2-score">—</span>
+      <span class="max">/ 15</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="sec2-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Is there clear evidence or data showing a community need for this program? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has ongoing data confirmed sustained or growing community need over three years? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Has the program's impact on community need been independently validated or publicly recognized? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program provide meaningful, measurable impact for participants or the community? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Are consistent, measurable outcomes documented year over year? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Has the program produced long-term, systemic change or influence beyond direct participants? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program promote equity, accessibility, and inclusion? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q3"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program actively improved access for underserved populations over time? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q3"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Is the program recognized as a model for equitable service delivery in the region? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s2q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s2q3"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s2q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="rubric-card q-block all-years hidden">
+    <div class="question-label" style="font-weight:500;">Community Need &amp; Impact — Scoring Rubric</div>
+    <div class="rubric-intro">Score each criterion 1–5 (or N/A).</div>
+    <div class="scale-legend"><span class="chip">5=Excellent</span><span class="chip">4=Good</span><span class="chip">3=Adequate</span><span class="chip">2=Weak</span><span class="chip">1=Poor</span><span class="chip">N/A</span></div>
+    <div class="rubric-table-wrap">
+    <table class="rubric-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td id="s2r1-label">Demonstrated community need</td><td><select class="score-select" data-section="2" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td id="s2r2-label">Expected or demonstrated impact</td><td><select class="score-select" data-section="2" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td id="s2r3-label">Promotes equity, inclusion, accessibility</td><td><select class="score-select" data-section="2" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr class="subtotal-row"><td>Subtotal (Max 15)</td><td id="sub2" colspan="2">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: Financial ===== -->
+  <div class="section-card q-block all-years hidden">
+    <h2>Financial Considerations</h2>
+    <div class="section-score-badge">
+      <span class="label">Section Score:</span>
+      <span class="score-val" id="sec3-score">—</span>
+      <span class="max">/ 15</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="sec3-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">What are the estimated or current costs of operating the program? <span class="req">*</span></div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Cost Summary…"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Is there a multi-year budget with actuals vs. projections tracked consistently? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q0"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q0"><span>Partially</span></label><label class="option-label"><input type="radio" name="s3q0"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Does the program have a long-term financial model with diversified, stable funding? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q0"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q0"><span>Partially</span></label><label class="option-label"><input type="radio" name="s3q0"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Is the program financially sustainable or supported by reliable funding sources? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q2"><span>Potentially</span></label><label class="option-label"><input type="radio" name="s3q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">If yes, how? / Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has funding remained stable and diversified across multiple sources over three years? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s3q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Could the program sustain a major funding loss without threatening core operations? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q2"><span>Possibly</span></label><label class="option-label"><input type="radio" name="s3q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program require additional staff, volunteers, or resources to implement? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q3"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s3q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Are staffing and resource needs well-defined and consistently met? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q3"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s3q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Is the program financially self-sustaining or on a clear path to independence from general operating funds? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q3"><span>In progress</span></label><label class="option-label"><input type="radio" name="s3q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Has the ED provided a clear budget, cost breakdown, or financial forecast? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s3q4"><span>Yes</span></label><label class="option-label"><input type="radio" name="s3q4"><span>Partially</span></label><label class="option-label"><input type="radio" name="s3q4"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="rubric-card q-block all-years hidden">
+    <div class="question-label" style="font-weight:500;">Financial Sustainability — Scoring Rubric</div>
+    <div class="rubric-intro">Score each criterion 1–5 (or N/A).</div>
+    <div class="scale-legend"><span class="chip">5=Excellent</span><span class="chip">4=Good</span><span class="chip">3=Adequate</span><span class="chip">2=Weak</span><span class="chip">1=Poor</span><span class="chip">N/A</span></div>
+    <div class="rubric-table-wrap">
+    <table class="rubric-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td id="s3r1-label">Clear cost structure and budget</td><td><select class="score-select" data-section="3" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td id="s3r2-label">Financial sustainability / funding availability</td><td><select class="score-select" data-section="3" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td id="s3r3-label">Appropriate staffing and resource requirements</td><td><select class="score-select" data-section="3" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr class="subtotal-row"><td>Subtotal (Max 15)</td><td id="sub3" colspan="2">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: Operational ===== -->
+  <div class="section-card q-block all-years hidden">
+    <h2>Operational Capacity</h2>
+    <div class="section-score-badge">
+      <span class="label">Section Score:</span>
+      <span class="score-val" id="sec4-score">—</span>
+      <span class="max">/ 20</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="sec4-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Can the organization realistically support this program with its current staffing and infrastructure? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s4q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program operated smoothly without straining organizational resources over three years? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s4q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Could the program survive an executive leadership transition without significant disruption? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s4q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Are there operational risks or challenges associated with running this program? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q2"><span>Minimal</span></label><label class="option-label"><input type="radio" name="s4q2"><span>Moderate</span></label><label class="option-label"><input type="radio" name="s4q2"><span>Significant</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Have operational challenges been identified and systematically addressed over time? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s4q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Are risk management protocols mature, documented, and regularly reviewed? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s4q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program require new policies, procedures, training, or technology? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q3"><span>Possibly</span></label><label class="option-label"><input type="radio" name="s4q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Are all required policies, procedures, and systems fully implemented and functioning? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q3"><span>Partially</span></label><label class="option-label"><input type="radio" name="s4q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Is the program's operational infrastructure strong enough to support replication or expansion? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s4q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s4q3"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s4q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="rubric-card q-block all-years hidden">
+    <div class="question-label" style="font-weight:500;">Operational Capacity &amp; Risk — Scoring Rubric</div>
+    <div class="rubric-intro">Score each criterion 1–5 (or N/A). For "Readiness of policies, procedures, and systems": 1 = none in place, 5 = fully documented and functioning.</div>
+    <div class="scale-legend"><span class="chip">5=Excellent</span><span class="chip">4=Good</span><span class="chip">3=Adequate</span><span class="chip">2=Weak</span><span class="chip">1=Poor</span><span class="chip">N/A</span></div>
+    <div class="rubric-table-wrap">
+    <table class="rubric-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Organizational capacity to support the program</td><td><select class="score-select" data-section="4" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Operational risks management</td><td><select class="score-select" data-section="4" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Management of logistics</td><td><select class="score-select" data-section="4" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Level of readiness including policies, procedures, and systems</td><td><select class="score-select" data-section="4" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr class="subtotal-row"><td>Subtotal (Max 20)</td><td id="sub4" colspan="2">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: Compliance ===== -->
+  <div class="section-card q-block all-years hidden">
+    <h2>Compliance &amp; Liability</h2>
+    <div class="section-score-badge">
+      <span class="label">Section Score:</span>
+      <span class="score-val" id="sec5-score">—</span>
+      <span class="max">/ 15</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="sec5-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the program comply with all applicable laws, regulations, and internal policies? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q1"><span>Uncertain</span></label><label class="option-label"><input type="radio" name="s5q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program maintained continuous compliance with no significant violations over three years? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q1"><span>Minor issues only</span></label><label class="option-label"><input type="radio" name="s5q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Does the program have a proactive compliance culture with regular audits and policy updates? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q1"><span>Developing</span></label><label class="option-label"><input type="radio" name="s5q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Could the program create new or increased liability for the organization? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q2"><span>No</span></label><label class="option-label"><input type="radio" name="s5q2"><span>Possibly</span></label><label class="option-label"><input type="radio" name="s5q2"><span>Yes</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Have identified liability risks been mitigated with appropriate controls? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q2"><span>Partially</span></label><label class="option-label"><input type="radio" name="s5q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Is the organization's liability exposure from this program well-managed and clearly documented? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q2"><span>Partially</span></label><label class="option-label"><input type="radio" name="s5q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Has the ED identified any compliance needs, risks, or reporting obligations associated with this program? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q3"><span>Partially</span></label><label class="option-label"><input type="radio" name="s5q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Are all compliance obligations fully integrated into program operations? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q3"><span>Partially</span></label><label class="option-label"><input type="radio" name="s5q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Has the program established best-practice compliance standards that could serve as an organizational model? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s5q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s5q3"><span>Partially</span></label><label class="option-label"><input type="radio" name="s5q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="rubric-card q-block all-years hidden">
+    <div class="question-label" style="font-weight:500;">Compliance &amp; Liability — Scoring Rubric</div>
+    <div class="rubric-intro">Score each criterion 1–5 (or N/A).</div>
+    <div class="scale-legend"><span class="chip">5=Excellent</span><span class="chip">4=Good</span><span class="chip">3=Adequate</span><span class="chip">2=Weak</span><span class="chip">1=Poor</span><span class="chip">N/A</span></div>
+    <div class="rubric-table-wrap">
+    <table class="rubric-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Standard of compliance with laws, regulations, and internal policies</td><td><select class="score-select" data-section="5" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Effectiveness of liability controls and safeguards</td><td><select class="score-select" data-section="5" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Clear compliance requirements identified</td><td><select class="score-select" data-section="5" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr class="subtotal-row"><td>Subtotal (Max 15)</td><td id="sub5" colspan="2">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: Marketing ===== -->
+  <div class="section-card q-block all-years hidden">
+    <h2>Marketing &amp; Public Communication</h2>
+    <div class="section-score-badge">
+      <span class="label">Section Score:</span>
+      <span class="score-val" id="sec6-score">—</span>
+      <span class="max">/ 15</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="sec6-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Is the messaging about this program clear, accurate, and consistent with the organization's values? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s6q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Is the program's messaging consistent, well-established, and resonating with the community? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s6q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Has the program built a strong public brand that enhances the organization's overall reputation? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q1"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q1"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s6q1"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Does the promotion of this program create any reputational risk for the organization? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q2"><span>No</span></label><label class="option-label"><input type="radio" name="s6q2"><span>Possibly</span></label><label class="option-label"><input type="radio" name="s6q2"><span>Yes</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Has the program consistently protected and strengthened the organization's reputation? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s6q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Is the program recognized externally as a point of pride and credibility for the organization? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q2"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q2"><span>Somewhat</span></label><label class="option-label"><input type="radio" name="s6q2"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Are there materials or public statements that need to be adjusted pending Board approval? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q3"><span>Maybe</span></label><label class="option-label"><input type="radio" name="s6q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">Are communications materials current, professional, and aligned with organizational standards? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q3"><span>Mostly</span></label><label class="option-label"><input type="radio" name="s6q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">Does the program have a mature communications strategy with measurable community awareness? <span class="req">*</span></div>
+    <div class="options-group"><label class="option-label"><input type="radio" name="s6q3"><span>Yes</span></label><label class="option-label"><input type="radio" name="s6q3"><span>In development</span></label><label class="option-label"><input type="radio" name="s6q3"><span>No</span></label></div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div><div class="text-input-wrap"><textarea rows="2" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <div class="rubric-card q-block all-years hidden">
+    <div class="question-label" style="font-weight:500;">Marketing &amp; Public Communication — Scoring Rubric</div>
+    <div class="rubric-intro">Score each criterion 1–5 (or N/A).</div>
+    <div class="scale-legend"><span class="chip">5=Excellent</span><span class="chip">4=Good</span><span class="chip">3=Adequate</span><span class="chip">2=Weak</span><span class="chip">1=Poor</span><span class="chip">N/A</span></div>
+    <div class="rubric-table-wrap">
+    <table class="rubric-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Accuracy and appropriateness of messaging</td><td><select class="score-select" data-section="6" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Reputational considerations</td><td><select class="score-select" data-section="6" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr><td>Clarity of materials and public-facing information</td><td><select class="score-select" data-section="6" onchange="updateScores()"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option value="N/A">N/A</option></select></td><td><input class="notes-input" type="text" placeholder="Notes…"></td></tr>
+        <tr class="subtotal-row"><td>Subtotal (Max 15)</td><td id="sub6" colspan="2">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== OVERALL ASSESSMENT ===== -->
+  <div class="section-card q-block all-years hidden" style="margin-top:20px;">
+    <h2>Overall Assessment</h2>
+  </div>
+
+  <!-- 1-year overall -->
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">What is your overall assessment of the program's appropriateness and value? <span class="req">*</span></div>
+    <div class="assessment-options">
+      <label class="assessment-opt"><input type="radio" name="overall"> Strongly Support</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Support with Revisions</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Neutral</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Do Not Support</label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y1-block hidden">
+    <div class="question-label">Should this program be approved, modified, paused, or discontinued? <span class="req">*</span></div>
+    <div class="assessment-options">
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Approve</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Approve with Conditions</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Pause Pending Review</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Discontinue</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Other</label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Notes / Recommendations</div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <!-- 3-year overall -->
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">What is your overall assessment of the program's performance and trajectory? <span class="req">*</span></div>
+    <div class="assessment-options">
+      <label class="assessment-opt"><input type="radio" name="overall"> Strongly Support</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Support with Revisions</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Neutral</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Do Not Support</label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y3-block hidden">
+    <div class="question-label">What is your recommendation for this program going forward? <span class="req">*</span></div>
+    <div class="assessment-options">
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Expand</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Maintain</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Modify</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Wind Down</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Other</label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Notes / Recommendations</div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <!-- 5-year overall -->
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">What is your overall assessment of the program's long-term value and organizational legacy? <span class="req">*</span></div>
+    <div class="assessment-options">
+      <label class="assessment-opt"><input type="radio" name="overall"> Strongly Support</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Support with Revisions</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Neutral</label>
+      <label class="assessment-opt"><input type="radio" name="overall"> Do Not Support</label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Comments</div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Your answer"></textarea></div>
+  </div>
+  <div class="card q-block y5-block hidden">
+    <div class="question-label">What is your 5-year recommendation for this program? <span class="req">*</span></div>
+    <div class="assessment-options">
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Expand</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Maintain</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Modify</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Wind Down</label>
+      <label class="assessment-opt"><input type="radio" name="recommendation"> Other</label>
+    </div>
+    <div style="margin-top:16px;" class="question-label" style="font-size:13px;">Notes / Recommendations</div>
+    <div class="text-input-wrap"><textarea rows="3" placeholder="Your answer"></textarea></div>
+  </div>
+
+  <!-- GRAND TOTAL -->
+  <div class="total-card q-block all-years hidden">
+    <h3>Total Score</h3>
+    <div class="grand-total-display">
+      <div class="grand-total-number" id="grand-total">—</div>
+      <div class="grand-total-info">
+        <div class="grand-total-max">out of 95 maximum points</div>
+        <div class="grand-total-bar-wrap"><div class="grand-total-bar" id="grand-bar"></div></div>
+      </div>
+    </div>
+    <div class="interpretation" id="interpretation">Enter scores above to see your total and interpretation.</div>
+  </div>
+
+  <!-- REVIEWER INFO -->
+  <div class="card q-block all-years hidden">
+    <div class="question-label" style="font-size:16px;font-family:'Raleway',sans-serif;font-weight:500;margin-bottom:20px;">Reviewer Information</div>
+
+    <div class="question-label">Name of Reviewer <span class="req">*</span></div>
+    <div class="text-input-wrap" style="margin-bottom:20px;">
+      <input type="text" id="reviewer-name" placeholder="Your answer">
+    </div>
+
+    <div class="question-label">Role / Title <span class="req">*</span></div>
+    <div class="text-input-wrap" style="margin-bottom:20px;">
+      <input type="text" id="reviewer-role" placeholder="e.g. Board Member, Executive Director, Staff, Volunteer, Committee Member">
+    </div>
+
+    <div class="question-label">Your Email Address</div>
+    <div class="text-input-wrap" style="margin-bottom:20px;">
+      <input type="text" id="reviewer-email" placeholder="your@email.com">
+    </div>
+
+
+    <div class="question-label">Date <span class="req">*</span></div>
+    <div class="text-input-wrap">
+      <input type="date" id="reviewer-date">
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="card q-block all-years hidden">
+    <div class="submit-row">
+      <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">Submit</button>
+      <button class="btn-clear" onclick="handleClear()">Clear form</button>
+    </div>
+    <p style="font-size:12px;color:#5a7180;margin-top:12px;line-height:1.6;">⏳ <em>Please note: after clicking Submit, it may take a minute or two for your evaluation to be saved and the confirmation email to arrive. Please keep this window open and avoid closing your browser or navigating away until you see the confirmation screen. Thank you for your patience!</em></p>
+  </div>
+
+  <div class="form-footer q-block all-years hidden">
+    Bremerton Food Line · Program Evaluation Questionnaire
+  </div>
+
+</div><!-- /main-form -->
+
+<!-- SUCCESS SCREEN -->
+<div class="form-container" id="success-screen" style="display:none;">
+  <div class="header-card">
+    <div style="text-align:center;padding:32px 0 16px;">
+      <div style="font-size:56px;margin-bottom:16px;">✅</div>
+      <h1 style="font-size:22px;margin-bottom:8px;">Evaluation Submitted!</h1>
+      <p style="font-size:14px;color:#5f6368;margin-bottom:24px;">Thank you! Your evaluation has been successfully submitted and saved to the Bremerton Foodline program evaluation records.</p>
+      <button class="btn-submit" onclick="startOver()">Submit Another Evaluation</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────
+  const SHEETS_URL = 'https://script.google.com/a/macros/bremertonfoodline.org/s/AKfycbxiSTB1hSUyOt5EAB4sLA666GoVhJ6Qot5-zb2NlIfAbFxsWLozYykLCwYhM8e6DzKt/exec'; // paste your Apps Script Web App URL here
+  // ────────────────────────────────────────────────────────
+
+  let currentYear = null;
+
+  function setYear(y) {
+    currentYear = y;
+    document.getElementById('eval-cycle').value = y + '-Year';
+
+    // Update buttons
+    document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.year-btn')[y === 1 ? 0 : y === 3 ? 1 : 2].classList.add('active');
+
+    // Show/hide blocks
+    document.querySelectorAll('.y1-block').forEach(el => el.classList.toggle('hidden', y !== 1));
+    document.querySelectorAll('.y3-block').forEach(el => el.classList.toggle('hidden', y !== 3));
+    document.querySelectorAll('.y5-block').forEach(el => el.classList.toggle('hidden', y !== 5));
+    document.querySelectorAll('.all-years').forEach(el => el.classList.remove('hidden'));
+
+    updateScores();
+  }
+
+  function updateScores() {
+    let grand = 0, grandFilled = 0;
+    for (let s = 1; s <= 6; s++) {
+      const sels = document.querySelectorAll(`select[data-section="${s}"]`);
+      let tot = 0, filled = 0;
+      sels.forEach(sel => {
+        if (sel.value && sel.value !== '' && sel.value !== 'N/A') { tot += parseInt(sel.value); filled++; }
+      });
+      const sub = document.getElementById(`sub${s}`);
+      if (sub) sub.textContent = filled > 0 ? tot : '—';
+      const sv = document.getElementById(`sec${s}-score`);
+      const sb = document.getElementById(`sec${s}-bar`);
+      if (sv) sv.textContent = filled > 0 ? tot : '—';
+      if (sb) {
+        const p = Math.min((tot / 15) * 100, 100);
+        sb.style.width = filled > 0 ? p + '%' : '0%';
+        sb.style.background = p >= 67 ? '#673ab7' : p >= 40 ? '#e37400' : '#d93025';
+      }
+      if (filled > 0) { grand += tot; grandFilled++; }
+    }
+    const ge = document.getElementById('grand-total');
+    const gb = document.getElementById('grand-bar');
+    const gi = document.getElementById('interpretation');
+    if (grandFilled > 0) {
+      ge.textContent = grand;
+      const p = Math.min((grand / 95) * 100, 100);
+      gb.style.width = p + '%';
+      if (grand >= 80) { gb.style.background = '#188038'; gi.className = 'interpretation green'; gi.textContent = `Score ${grand}/95 — Strong program. Appropriate to continue or approve.`; }
+      else if (grand >= 65) { gb.style.background = '#e37400'; gi.className = 'interpretation yellow'; gi.textContent = `Score ${grand}/95 — Generally viable. May require modifications before approval.`; }
+      else if (grand >= 50) { gb.style.background = '#d93025'; gi.className = 'interpretation red'; gi.textContent = `Score ${grand}/95 — Concerning. Significant revisions needed before approval.`; }
+      else { gb.style.background = '#d93025'; gi.className = 'interpretation red'; gi.textContent = `Score ${grand}/95 — Not recommended for approval at this time.`; }
+    } else {
+      ge.textContent = '—'; gb.style.width = '0%'; gi.className = 'interpretation'; gi.textContent = 'Enter scores above to see your total and interpretation.';
+    }
+  }
+
+  function collectData() {
+    const programRadio = document.querySelector('input[name="program_name"]:checked');
+    const programName = programRadio
+      ? (programRadio.id === 'program_other_radio' ? document.getElementById('program_other_text').value : programRadio.nextElementSibling.textContent)
+      : '';
+    const typeRadio = document.querySelector('input[name="program_type"]:checked');
+    const overallRadio = document.querySelector('input[name="overall"]:checked');
+    const recRadio = document.querySelector('input[name="recommendation"]:checked');
+
+    // Collect all section scores
+    const scores = {};
+    for (let s = 1; s <= 6; s++) {
+      const sels = document.querySelectorAll(`select[data-section="${s}"]`);
+      let tot = 0;
+      sels.forEach((sel, i) => { scores[`Section${s}_Score${i+1}`] = sel.value || '—'; if (sel.value && sel.value !== 'N/A') tot += parseInt(sel.value); });
+      scores[`Section${s}_Subtotal`] = tot;
+    }
+
+    return {
+      Timestamp: new Date().toISOString(),
+      EvaluationCycle: document.getElementById('eval-cycle').value,
+      ProgramName: programName,
+      ProgramType: typeRadio ? typeRadio.nextElementSibling.textContent : '',
+      DateReviewed: document.getElementById('date-reviewed').value,
+      ReviewerName: document.getElementById('reviewer-name').value,
+      ReviewerRole: document.getElementById('reviewer-role').value,
+      ReviewerEmail: document.getElementById('reviewer-email').value,
+      OverallAssessment: overallRadio ? overallRadio.nextElementSibling.textContent.trim() : '',
+      Recommendation: recRadio ? recRadio.nextElementSibling.textContent.trim() : '',
+      GrandTotal: document.getElementById('grand-total').textContent,
+      ...scores
+    };
+  }
+
+  function buildEmailBody(data) {
+    return `PROGRAM EVALUATION SUBMISSION
+==============================
+Submitted: ${data.Timestamp}
+Evaluation Cycle: ${data.EvaluationCycle}
+Program: ${data.ProgramName}
+Type: ${data.ProgramType}
+Date Reviewed: ${data.DateReviewed}
+
+REVIEWER
+--------
+Name: ${data.ReviewerName}
+Role: ${data.ReviewerRole}
+Email: ${data.ReviewerEmail}
+
+SCORES
+------
+Mission & Strategic Alignment: ${data.Section1_Subtotal}/15
+Community Need & Impact: ${data.Section2_Subtotal}/15
+Financial Sustainability: ${data.Section3_Subtotal}/15
+Operational Capacity: ${data.Section4_Subtotal}/15
+Compliance & Liability: ${data.Section5_Subtotal}/15
+Marketing & Communication: ${data.Section6_Subtotal}/15
+
+GRAND TOTAL: ${data.GrandTotal}/95
+
+OVERALL ASSESSMENT: ${data.OverallAssessment}
+RECOMMENDATION: ${data.Recommendation}`;
+  }
+
+  function handleSubmit() {
+    if (!currentYear) { alert('Please select an evaluation cycle (1-Year, 3-Year, or 5-Year) before submitting.'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+    const data = collectData();
+    const adminEmail = document.getElementById('admin-email').value.trim();
+    const summary = buildEmailBody(data);
+
+    const GFORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSdzNzpMRG1z7_xBmMssklPPY-L3dfuaiMc-QSFkh5qtPZpZOA/formResponse';
+    const ENTRY = 'entry.1666602799';
+
+    // Show success screen immediately — dont wait for Google Form
+    document.getElementById('main-form').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    document.getElementById('confirm-email').textContent = adminEmail;
+    window.scrollTo(0, 0);
+
+    // Submit to Google Form silently in background after showing success
+    try {
+      const formData = new FormData();
+      formData.append(ENTRY, summary);
+      fetch(GFORM_BASE, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      }).catch(() => {});
+    } catch(e) {}
+  }
+
+  function handleClear() {
+    if (confirm('Clear all form responses?')) {
+      document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+      document.querySelectorAll('select.score-select').forEach(el => el.value = '');
+      document.querySelectorAll('.notes-input').forEach(el => el.value = '');
+      document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.y1-block,.y3-block,.y5-block,.all-years').forEach(el => el.classList.add('hidden'));
+      currentYear = null;
+      document.getElementById('eval-cycle').value = '';
+      updateScores();
+    }
+  }
+
+  function startOver() {
+    document.getElementById('success-screen').style.display = 'none';
+    document.getElementById('main-form').style.display = 'block';
+    handleClear();
+    window.scrollTo(0, 0);
+  }
+
+  // Set today's date as default
+  document.getElementById('date-reviewed').valueAsDate = new Date();
+  document.getElementById('reviewer-date').valueAsDate = new Date();
+</script>
+</body>
+</html>
